@@ -4,11 +4,33 @@ import random
 import sys
 import time
 
+
 pygame.init()
 
-
-def game_main():
+size= width,height= (1200,800)
+car = pygame.image.load("images/car.png")
+car1 = pygame.image.load("images/car1.png")
+car2= pygame.image.load("images/car2.png")
+screen=pygame.display.set_mode(size,RESIZABLE)
+class Button :
     
+    def __init__(self,CARS, x, y):
+        self.img=CARS
+        self.rect=self.img.get_rect()
+        self.rect.topleft=(x,y)
+        self.clicked= False
+    def draw(self):
+        pos=pygame.mouse.get_pos()
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed ()[0]and not self.clicked:
+                self.clicked=True
+                game_main(self.img)
+
+            if not pygame.mouse.get_pressed()[0]:
+                self.clicked=False
+        screen.blit (self.img, (self.rect.x, self.rect.y))
+def game_main(l):
+    mainClock = pygame.time.Clock()
     size= width,height= (1200,800)
     road_w= int(width/1.5)
     roadmark_w= int(width/80)
@@ -19,37 +41,17 @@ def game_main():
     black= (0,0,0)
     green=(60,220,0)
     white = (255,255,255)
-    
+    font=pygame.font.Font ('freesansbold.ttf', 32)
+
 
     screen=pygame.display.set_mode(size,RESIZABLE)
     pygame.display.set_caption("tushar's car game")
-    #screen color
-    screen.fill(green)
-    
-    secs=0
-    mins=0
-    hours=0
-    game_done=True
-    font=pygame.font.Font ('freesansbold.ttf', 32)
-    # text=font.render("{}".format (mins), True, (255, 255, 255), (0, 0, 0))
-
-
-    right_lane= width/2+road_w/4
-    left_lane= width/2-road_w/4
-    middle_lane= width/2 
-
-    def drawText(text, font, surface, x, y):
-        textobj = font.render(text, 1, TEXTCOLOR)
-        textrect = textobj.get_rect()
-        textrect.topleft = (x, y)
-        surface.blit(textobj, textrect)
-
 
     def terminate():
         pygame.quit()
         sys.exit()
 
-    def waitForPlayerToPressKey():
+    def waitForPlayerToPressKey():  
         while True:
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -57,7 +59,35 @@ def game_main():
                 if event.type == KEYDOWN:
                     if event.key == K_ESCAPE: #escape quits
                         terminate()
-                    return
+                    return   
+
+    def drawText(text, font, surface, x, y):
+        textobj = font.render(text, 1, TEXTCOLOR)
+        textrect = textobj.get_rect()
+        textrect.topleft = (x, y)
+        surface.blit(textobj, textrect)
+
+    #game start #screen color
+    screen.fill(black)
+    drawText('Press any key to start the game.', font, screen, (width / 3) - 30, (height / 3))
+    drawText('And Enjoy', font, screen, (width / 3), (height / 3)+30)
+    pygame.display.update()
+    waitForPlayerToPressKey()
+    screen.fill(green)
+    reward_count=0
+    screen.fill(green)
+    
+    secs=0
+    mins=0
+    hours=0
+    game_done=True
+    # text=font.render("{}".format (mins), True, (255, 255, 255), (0, 0, 0))
+
+
+    right_lane= width/2+road_w/4
+    left_lane= width/2-road_w/4
+    middle_lane= width/2 
+
     
     def game_over():
         game_restart_font = pygame.font.Font('freesansbold.ttf',100)
@@ -79,7 +109,9 @@ def game_main():
                 trophy_loc.center = right_lane,-200
             elif random_loc==2:
                 trophy_loc.center = middle_lane,-200     
-            
+    
+
+
     def game_restart():
         while True:
             for event in pygame.event.get():
@@ -89,7 +121,7 @@ def game_main():
                     if event.key == K_ESCAPE: #escape quits
                         terminate()
                     else:
-                        game_main()
+                        game_main(l)
                     return
     clock = pygame.time.Clock()
 
@@ -100,32 +132,25 @@ def game_main():
     
     
     #1car
-    car = pygame.image.load("car.png")
+    car = l
     car_loc=car.get_rect()
     car_loc.center= middle_lane,height*0.8
     
     
     #2car
-    car2 = pygame.image.load("otherCar.png")
+    car2 = pygame.image.load("images/othercar.png")
     car2_loc=car2.get_rect()
     car2_loc.center= -middle_lane,height*0.8
     
     
     #3car
-    trophy = pygame.image.load("trophy.png").convert_alpha()
+    trophy = pygame.image.load("images/trophy.png").convert_alpha()
     trophy =pygame.transform.scale(trophy,(100,100)).convert_alpha()
     trophy_loc=trophy.get_rect()
     trophy_loc.center= -middle_lane,height*0.8
 
 
-    #game start 
-    screen.fill(black)
-    drawText('Press any key to start the game.', font, screen, (width / 3) - 30, (height / 3))
-    drawText('And Enjoy', font, screen, (width / 3), (height / 3)+30)
-    pygame.display.update()
-    waitForPlayerToPressKey()
-    screen.fill(green)
-    reward_count=0
+
     
     
     while running:
@@ -154,15 +179,16 @@ def game_main():
                     print("game end")
                     # display_game_over = game_over_font.render("game over",True,red,black)
                     secs=0
-                    game_done=False  
+                    game_done=False
                     game_over()
+                    mainClock.tick(30)
                     pygame.display.flip()
                     break
         
         #reward 
         trophy_spawn()       
-        if car_loc.center[1]==trophy_loc.center[1] and car_loc.center[0]==trophy_loc.center[0]:
-            print("working")
+        if car_loc[1]==trophy_loc[1] and car_loc.center[0]==trophy_loc.center[0]:
+            print("trophy count:",reward_count)
             trophy.set_alpha(0)
             reward_count+=1
             
@@ -218,7 +244,7 @@ def menu():
     mainClock = pygame.time.Clock()
     pygame.display.set_caption('game base')
     size= width,height= (1200,800)
-    screen = pygame.display.set_mode((size),0,32)
+    screen = pygame.display.set_mode((size))
     
     #setting font settings
     font = pygame.font.SysFont(None, 30)
@@ -232,10 +258,7 @@ def menu():
         textrect.topleft = (x, y)
         surface.blit(textobj, textrect)
     
-    # A variable to check for the status later
-    click = False
-    
-    # Main container function that holds the buttons and game functions
+
     def main_menu():
         while True:
     
@@ -244,11 +267,9 @@ def menu():
     
             mx, my = pygame.mouse.get_pos()
 
-            #creating buttons
             button_1 = pygame.Rect(width/2-200/2, height/2, 200, 50)
             button_2 = pygame.Rect(width/2-200/2, height/2+70, 200, 50)
 
-            #defining functions when a certain button is pressed
             if button_1.collidepoint((mx, my)):
                 if click:
                     game()
@@ -258,7 +279,6 @@ def menu():
             pygame.draw.rect(screen, (255, 0, 0), button_1)
             pygame.draw.rect(screen, (255, 0, 0), button_2)
     
-            #writing text on top of button
             draw_text('PLAY', font, (255,255,255), screen, width/2-270/10, height/2+15)
             draw_text('CAR SELECT', font, (255,255,255), screen, width/2-250/4,height/2+85)
 
@@ -277,23 +297,33 @@ def menu():
                         click = True
     
             pygame.display.update()
-            mainClock.tick(60)
+            mainClock.tick(30)
     
     """
-    This function is called when the "PLAY" button is clicked.
+    This function is called when the "Main game loop" button is clicked.
     """
     def game():
-        game_main()
-        mainClock.tick(60)
+        game_main(l= pygame.image.load("images/car.png"))
+        mainClock.tick(30)
 
     """
     This function is called when the "Car selection" button is clicked.
     """
     def carselect():
+  
         running = True
+        car = pygame.image.load("images/car.png")
+        car1 = pygame.image.load("images/car1.png")
+        car2= pygame.image.load("images/car2.png")
+        b=Button(car,150,250)
+        u=Button(car1,450,250)
+        l=Button(car2,750,250)
+
         while running:
             screen.fill((0,0,0))
-    
+            b.draw()
+            u.draw()
+            l.draw()
             draw_text('Car selection', font, (255, 255, 255), screen, 20, 20)
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -304,7 +334,8 @@ def menu():
                         running = False
         
             pygame.display.update()
-            mainClock.tick(60)
+            mainClock.tick(30)
     main_menu()
     
+
 menu()
