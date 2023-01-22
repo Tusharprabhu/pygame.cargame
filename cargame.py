@@ -249,9 +249,7 @@ def menu():
     #setting font settings
     font = pygame.font.SysFont(None, 30)
     
-    """
-    A function that can be used to write text on our screen and buttons
-    """
+
     def draw_text(text, font, color, surface, x, y):
         textobj = font.render(text, 1, color)
         textrect = textobj.get_rect()
@@ -299,16 +297,12 @@ def menu():
             pygame.display.update()
             mainClock.tick(30)
     
-    """
-    This function is called when the "Main game loop" button is clicked.
-    """
+
     def game():
         game_main(l= pygame.image.load("images/car.png"))
         mainClock.tick(30)
 
-    """
-    This function is called when the "Car selection" button is clicked.
-    """
+
     def carselect():
   
         running = True
